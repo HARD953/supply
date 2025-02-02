@@ -1,1 +1,1 @@
-web: gunicorn auditapi.wsgi --log-file=-
+web: gunicorn superM.wsgi --log-file=-
