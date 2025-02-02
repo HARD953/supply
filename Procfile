@@ -1,1 +1,1 @@
-web: gunicorn superM.wsgi --log-file=-
+web: gunicorn superM.wsgi:application --log-file=-
