@@ -8,7 +8,7 @@ class Shop(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='shops/')
     type = models.CharField(max_length=20, choices=SHOP_TYPES)
-    typecommerce = models.CharField(max_length=20, choices=SHOP_TYPES)
+    typecommerce = models.CharField(max_length=20, blank=True)
     brand = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField()
     latitude = models.FloatField()
