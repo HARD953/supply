@@ -14,6 +14,10 @@ class SupplierCollecte(models.Model):
     image = models.ImageField(upload_to='suppliers/', null=True, blank=True)
     delivery_time = models.IntegerField(help_text="Délai de livraison moyen en jours")
     order_frequency = models.CharField(max_length=100, help_text="Fréquence des commandes")
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
     def __str__(self):
         return self.name
