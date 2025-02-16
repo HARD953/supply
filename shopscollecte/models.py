@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from fourcollecte.models import SupplierCollecte
+from shops.models import Shop
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -21,7 +21,7 @@ class Product(models.Model):
     stock = models.IntegerField(validators=[MinValueValidator(0)])
     reorder_frequency = models.IntegerField(validators=[MinValueValidator(0)], help_text="Fréquence de réapprovisionnement en jours")
     supplier = models.ForeignKey(
-        SupplierCollecte,
+        Shop,
         on_delete=models.CASCADE,
         related_name='products',
         verbose_name="Fournisseur"

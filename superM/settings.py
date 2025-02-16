@@ -93,19 +93,19 @@ WSGI_APPLICATION = 'superM.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'supply',
-        'USER':'supply_user',
-        'PASSWORD': '',
-        'HOST':'dpg-cufr52i3esus73e3lqqg-a',
-        'PORT': 5432,
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'supply',
+#         'USER':'supply_user',
+#         'PASSWORD': '',
+#         'HOST':'dpg-cufr52i3esus73e3lqqg-a',
+#         'PORT': 5432,
+#     }
+# }
 
 # Configuration de la base de données
-DATABASE_URL = config('DATABASE_URL', default='postgresql://supply_user:TFU2LTeW7bKOv3JXm2iQLf23aiJCFzfe@dpg-cufr52i3esus73e3lqqg-a.oregon-postgres.render.com/supply')
+DATABASE_URL = config('DATABASE_URL', default='postgresql://supply_7ujl_user:9RLAyglg2hwM6AB3OoYbAn7sJyNSLSkZ@dpg-cup0lfhu0jms73bis78g-a.oregon-postgres.render.comsupply_7ujl')
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL),  # Utilisez dj-database-url pour parser l'URL
 }
