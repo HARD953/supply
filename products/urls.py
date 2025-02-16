@@ -7,6 +7,7 @@ from .views import (
     OrderViewSet,
     OrderItemViewSet,
 )
+from .OrderStatView import order_statistics, product_sales_ranking, monthly_orders_evolution
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
@@ -17,4 +18,7 @@ router.register(r'order-items', OrderItemViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('order-statistics/', order_statistics, name='order-statistics'),
+    path('product-sales-ranking/', product_sales_ranking, name='product-sales-ranking'),
+    path('monthly-orders-evolution/', monthly_orders_evolution, name='monthly-orders-evolution'),
 ]
