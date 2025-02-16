@@ -6,6 +6,11 @@ class ShopSerializer(serializers.ModelSerializer):
         model = Shop
         fields = '__all__'
 
+class ShopSerializerSupplier(serializers.ModelSerializer):
+    class Meta:
+        model = Shop
+        fields = ['id','name']
+
 
 class ShopStatsByTypeSerializer(serializers.Serializer):
     typecommerce = serializers.CharField()

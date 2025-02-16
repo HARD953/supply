@@ -1,10 +1,14 @@
 from rest_framework import viewsets
 from .models import Shop
-from .serializers import ShopSerializer
+from .serializers import ShopSerializer,ShopSerializerSupplier
 
 class ShopViewSet(viewsets.ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
+
+class ShopViewSetSupplier(viewsets.ModelViewSet):
+    queryset = Shop.objects.all()
+    serializer_class = ShopSerializerSupplier
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
