@@ -11,6 +11,7 @@ class Shop(models.Model):
     typecommerce = models.CharField(max_length=20, blank=True)
     taille = models.CharField(max_length=20, blank=True)
     brand = models.CharField(max_length=100, blank=True, null=True)
+    frequence_appr = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField()
     latitude = models.FloatField()
     longitude = models.FloatField()

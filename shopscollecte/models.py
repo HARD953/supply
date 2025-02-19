@@ -19,6 +19,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     stock = models.IntegerField(validators=[MinValueValidator(0)])
+    frequence_appr = models.CharField(max_length=100, blank=True, null=True)
     reorder_frequency = models.IntegerField(validators=[MinValueValidator(0)], help_text="Fréquence de réapprovisionnement en jours")
     supplier = models.ForeignKey(
         Shop,
