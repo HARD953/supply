@@ -23,10 +23,13 @@ class ProductSerializer(serializers.ModelSerializer):
     formats = ProductFormatSerializer(many=True, required=False)
     category_name = serializers.CharField(source='category.name', read_only=True)
     supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+    supplier_commune = serializers.CharField(source='supplier.commune', read_only=True)
+    supplier_quartier = serializers.CharField(source='supplier.quartier', read_only=True)
+    supplier_zone = serializers.CharField(source='supplier.zone', read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category', 'category_name', 'supplier', 'supplier_name', 'last_order', 'formats']
+        fields = ['id', 'name', 'category', 'category_name', 'supplier', 'supplier_name', 'supplier_commune','supplier_quartier','supplier_zone','last_order', 'formats']
         extra_kwargs = {
             'category': {'write_only': True},
             'supplier': {'write_only': True},

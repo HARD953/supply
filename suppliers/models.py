@@ -13,6 +13,9 @@ class Supplier(models.Model):
     address = models.TextField()
     average_delivery_time = models.IntegerField()  # in days
     order_frequency = models.CharField(max_length=100)
+    commune = models.CharField(max_length=100, verbose_name="Commune")
+    quartier = models.CharField(max_length=100, verbose_name="Quartier")
+    zone = models.CharField(max_length=100, verbose_name="Zone")
 
     def __str__(self):
         return self.name
