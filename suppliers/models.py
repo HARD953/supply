@@ -16,6 +16,8 @@ class Supplier(models.Model):
     commune = models.CharField(max_length=100, verbose_name="Commune")
     quartier = models.CharField(max_length=100, verbose_name="Quartier")
     zone = models.CharField(max_length=100, verbose_name="Zone")
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
     def __str__(self):
         return self.name
