@@ -16,7 +16,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             token_data = response.data
             from django.contrib.auth import get_user_model
             User = get_user_model()
-            user = User.objects.get(username=request.data['username'])
+            user = User.objects.get(email=request.data['email'])
             
             response.data.update({
                 'user_id': user.pk,
