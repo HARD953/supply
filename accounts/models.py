@@ -21,6 +21,8 @@ class User(AbstractUser):
     business_address = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='accounts_users/')
     email = models.EmailField(unique=True)
+    registre = models.CharField(max_length=100)
+    date_creation = models.CharField(max_length=15)
     USERNAME_FIELD = 'email'
     # Définir explicitement REQUIRED_FIELDS sans email
     REQUIRED_FIELDS = ['username']  # username est requis car AbstractUser l'exige

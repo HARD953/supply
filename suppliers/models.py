@@ -18,6 +18,8 @@ class Supplier(models.Model):
     zone = models.CharField(max_length=100, verbose_name="Zone")
     latitude = models.FloatField()
     longitude = models.FloatField()
+    registre = models.CharField(max_length=100)
+    date_creation = models.CharField(max_length=15)
 
     def __str__(self):
         return self.name

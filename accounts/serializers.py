@@ -8,8 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'user_type', 'phone_number', 'address',
-            'company_name', 'company_tax_id', 'website', 'contact_email', 
-            'contact_person', 'business_address'
+            'company_name', 'company_tax_id', 'website', 'email', 'image',
+            'contact_person', 'business_address','registre','date_creation'
         ]
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -19,8 +19,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'username', 'password', 'email', 'user_type', 'phone_number', 'address',
-            'company_name', 'company_tax_id', 'website', 'contact_email', 
-            'contact_person', 'business_address','image'
+            'company_name', 'company_tax_id', 'website', 'email', 
+            'contact_person', 'business_address','image','registre','date_creation'
         ]
 
     def create(self, validated_data):
