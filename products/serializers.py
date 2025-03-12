@@ -180,8 +180,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'status', 'created_at', 'updated_at', 'items', 'items_detail']
-        read_only_fields = ['created_at', 'updated_at']
+        fields = ['id','status', 'created_at', 'updated_at', 'items', 'items_detail']
+        read_only_fields = ['created_at', 'updated_at','user']
 
     @transaction.atomic
     def create(self, validated_data):
