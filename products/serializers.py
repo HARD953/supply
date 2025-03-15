@@ -22,7 +22,7 @@ class SupplierSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     formats = ProductFormatSerializer(many=True, required=False)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+    supplier_name = serializers.CharField(source='supplier.company_name', read_only=True)
     supplier_commune = serializers.CharField(source='supplier.commune', read_only=True)
     supplier_quartier = serializers.CharField(source='supplier.quartier', read_only=True)
     supplier_zone = serializers.CharField(source='supplier.zone', read_only=True)

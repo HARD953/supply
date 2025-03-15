@@ -7,10 +7,17 @@ class User(AbstractUser):
         ('WHOLESALER', 'Grossiste'),
         ('SEMI_WHOLESALER', 'Semi-grossiste'),
         ('RETAILER', 'Détaillant'),
+        ('All', 'All')
     ]
     
     user_type = models.CharField(max_length=20, choices=USER_TYPES)
+
     phone_number = models.CharField(max_length=15)
+    commune = models.CharField(max_length=100, verbose_name="Commune")
+    quartier = models.CharField(max_length=100, verbose_name="Quartier")
+    zone = models.CharField(max_length=100, verbose_name="Zone")
+    latitude = models.FloatField()
+    longitude = models.FloatField()
     address = models.TextField()
     user_name = models.CharField(max_length=255, blank=True, null=True)
     company_name = models.CharField(max_length=255, blank=True, null=True)

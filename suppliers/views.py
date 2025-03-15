@@ -1,8 +1,9 @@
-from rest_framework import viewsets
+from rest_framework import viewsets,permissions
 from .models import Supplier
 from .serializers import *
 
 class SupplierViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Supplier.objects.all()
     serializer_class = SupplierSerializer
 

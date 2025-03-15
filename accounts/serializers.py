@@ -19,8 +19,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'username', 'password', 'email', 'user_type', 'phone_number', 'address',
-            'company_name', 'company_tax_id', 'website', 'email', 
-            'contact_person', 'business_address','image','registre','date_creation'
+            'company_name', 'company_tax_id', 'website', 'email', 'latitude','longitude',
+            'contact_person', 'business_address','image','registre','date_creation','commune','quartier','zone'
         ]
 
     def create(self, validated_data):

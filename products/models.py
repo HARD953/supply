@@ -12,7 +12,7 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    supplier = models.ForeignKey(Supplier, related_name='products', on_delete=models.PROTECT)
+    supplier = models.ForeignKey(User, related_name='products', on_delete=models.PROTECT)
     last_order = models.DateField()
 
     def __str__(self):
