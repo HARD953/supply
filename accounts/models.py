@@ -10,7 +10,6 @@ class User(AbstractUser):
     zone = models.CharField(max_length=100, verbose_name="Zone")
     latitude = models.FloatField()
     longitude = models.FloatField()
-    address = models.TextField()
     user_name = models.CharField(max_length=255, blank=True, null=True)
     company_name = models.CharField(max_length=255, blank=True, null=True)
     company_tax_id = models.CharField(max_length=50, blank=True, null=True)

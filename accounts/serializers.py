@@ -7,7 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'user_type', 'phone_number', 'address',
+            'id', 'username', 'email', 'user_type', 'phone_number',
             'company_name', 'company_tax_id', 'website', 'email', 'image','latitude','longitude',
             'contact_person', 'business_address','registre','date_creation','commune','quartier','zone'
         ]
@@ -18,7 +18,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'username', 'password', 'email', 'user_type', 'phone_number', 'address',
+            'username', 'password', 'email', 'user_type', 'phone_number',
             'company_name', 'company_tax_id', 'website', 'email', 'latitude','longitude',
             'contact_person', 'business_address','image','registre','date_creation','commune','quartier','zone'
         ]
