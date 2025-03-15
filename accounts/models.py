@@ -3,15 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    USER_TYPES = [
-        ('WHOLESALER', 'Grossiste'),
-        ('SEMI_WHOLESALER', 'Semi-grossiste'),
-        ('RETAILER', 'Détaillant'),
-        ('All', 'All')
-    ]
-    
-    user_type = models.CharField(max_length=20, choices=USER_TYPES)
-
+    user_type = models.CharField(max_length=20)
     phone_number = models.CharField(max_length=15)
     commune = models.CharField(max_length=100, verbose_name="Commune")
     quartier = models.CharField(max_length=100, verbose_name="Quartier")

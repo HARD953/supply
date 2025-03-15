@@ -21,8 +21,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             response.data.update({
                 'user_id': user.pk,
                 'email': user.email,
+                'user_type': user.email,
                 'username': user.username,
-                'user_type': user.user_type
             })
         
         return response

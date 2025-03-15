@@ -8,8 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'user_type', 'phone_number', 'address',
-            'company_name', 'company_tax_id', 'website', 'email', 'image',
-            'contact_person', 'business_address','registre','date_creation'
+            'company_name', 'company_tax_id', 'website', 'email', 'image','latitude','longitude',
+            'contact_person', 'business_address','registre','date_creation','commune','quartier','zone'
         ]
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
