@@ -1,6 +1,8 @@
 from django.db import models
+from accounts.models import User
 
 class Shop(models.Model):
+    owner = models.ForeignKey(User, related_name='Shop', on_delete=models.PROTECT)
     SHOP_TYPES = [
         ('BRANDED', 'Brandée'),
         ('NON_BRANDED', 'Non brandée'),

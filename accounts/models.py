@@ -24,6 +24,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     # Définir explicitement REQUIRED_FIELDS sans email
     REQUIRED_FIELDS = ['username']  # username est requis car AbstractUser l'exige
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.username
