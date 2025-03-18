@@ -30,13 +30,14 @@ class ShopViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 class ShopViewSetSupplier(viewsets.ModelViewSet):
+    queryset = Shop.objects.all()
     serializer_class = ShopSerializerSupplier
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     
-    def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Shop.objects.filter(owner=self.request.user)
-        return Shop.objects.none()
+    # def get_queryset(self):
+    #     if self.request.user.is_authenticated:
+    #         return Shop.objects.filter(owner=self.request.user)
+    #     return Shop.objects.none()
 
 class ShopStatsByTypeView(APIView):
     permission_classes = [IsAuthenticated]
