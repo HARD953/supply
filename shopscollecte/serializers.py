@@ -20,6 +20,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+        read_only_fields = ['owner']
 
     # def create(self, validated_data):
     #     certification_ids = validated_data.pop('certification_ids', [])

@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from shops.models import Shop
+from accounts.models import User
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -14,6 +16,7 @@ class Certification(models.Model):
         return self.name
 
 class Product(models.Model):
+    owner = models.ForeignKey(User, related_name='Shopscollecte', on_delete=models.PROTECT)
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])

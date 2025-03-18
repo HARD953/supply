@@ -5,7 +5,7 @@ from .views import CategoryViewSet, CertificationViewSet, ProductViewSet
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
 router.register(r'certifications', CertificationViewSet)
-router.register(r'productscollecte', ProductViewSet)
+router.register(r'productscollecte', ProductViewSet, basename='productscollecte-supplier')
 
 urlpatterns = [
     path('', include(router.urls)),
