@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'superM.wsgi.application'
 # }
 
 # Configuration de la base de données
-DATABASE_URL = config('DATABASE_URL', default='postgresql://supply_7ujl_user:9RLAyglg2hwM6AB3OoYbAn7sJyNSLSkZ@dpg-cup0lfhu0jms73bis78g-a.oregon-postgres.render.comsupply_7ujl')
+DATABASE_URL = config('DATABASE_URL', default='postgresql://chain_supply_user:NtdlfW39GfemHFCIIP96QiGchPXKSVXU@dpg-cvcse8l6l47c73f5viig-a.oregon-postgres.render.com/chain_supply')
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL),  # Utilisez dj-database-url pour parser l'URL
 }
