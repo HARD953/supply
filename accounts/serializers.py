@@ -26,3 +26,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
         return super().create(validated_data)
+    
+class UserSerializerCommune(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['commune']
+
+class UserSerializerQuartier(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['quartier']
+
+class UserSerializerZone(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['zone']

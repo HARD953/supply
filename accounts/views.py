@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
-from .serializers import UserSerializer, UserRegistrationSerializer
+from .serializers import *
 from rest_framework.views import APIView
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -78,3 +78,15 @@ class CurrentUserView(APIView):
     def get(self, request, *args, **kwargs):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+class UserViewSetCommune(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializerCommune
+
+class UserViewSetQuartier(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializerQuartier
+
+class UserViewSetZone(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializerZone
