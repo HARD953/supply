@@ -5,6 +5,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDate, TruncMonth, TruncYear
 from .models import Shop
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from .serializers import (
     ShopSerializer, 
     ShopSerializerSupplier,
@@ -15,10 +16,24 @@ from .serializers import (
     ShopStatsByBrandSerializer
 )
 
+# Classe de pagination personnalisée (optionnel)
+class CustomShopPagination(PageNumberPagination):
+    page_size = 10  # Nombre d'éléments par page
+    page_size_query_param = 'page_size'  # Permet au client de spécifier la taille de la page
+    max_page_size = 100  # Limite maximale pour la taille de la page
+    def get_paginated_response(self, data):
+        return Response({
+            'total': self.page.paginator.count,  # Remplace "count" par "total"
+            'next': self.get_next_link(),        # Lien vers la page suivante
+            'previous': self.get_previous_link(), # Lien vers la page précédente
+            'data': data                         # Remplace "results" par "data"
+        })
+
 class ShopViewSet(viewsets.ModelViewSet):
     serializer_class = ShopSerializer
     permission_classes = [IsAuthenticated]  # Restreint l'accès aux utilisateurs authentifiés
-    
+    pagination_class = CustomShopPagination  # Associe la pagination au ViewSet
+
     def get_queryset(self):
         # Si l'utilisateur est authentifié, filtre par owner
         if self.request.user.is_authenticated:
