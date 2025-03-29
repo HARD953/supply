@@ -12,30 +12,40 @@ from .serializers import (
     OrderItemSerializer
 )
 class CustomShopPagination(PageNumberPagination):
-    page_size = 10  # Nombre d'éléments par page
-    page_size_query_param = 'page_size'  # Permet au client de spécifier la taille de la page
-    max_page_size = 100  # Limite maximale pour la taille de la page
+    page_size = 10
+    page_size_query_param = 'limit'  # Changement clé ici
+    max_page_size = 100
+
+    def get_page_size(self, request):
+        try:
+            limit = int(request.query_params.get(self.page_size_query_param, self.page_size))
+            if limit <= 0:
+                return self.page_size
+            return min(limit, self.max_page_size)
+        except (ValueError, TypeError):
+            return self.page_size
+
     def get_paginated_response(self, data):
         return Response({
-            'total': self.page.paginator.count,  # Remplace "count" par "total"
-            'next': self.get_next_link(),        # Lien vers la page suivante
-            'previous': self.get_previous_link(), # Lien vers la page précédente
-            'data': data                         # Remplace "results" par "data"
+            'total': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'data': data
         })
-
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSetP(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
+    pagination_class = CustomShopPagination
+
 # class ProductViewSet(viewsets.ModelViewSet):
 #     queryset = Product.objects.all()
 #     serializer_class = ProductSerializer
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSetP(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]  # Accès réservé aux utilisateurs authentifiés
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
+    pagination_class = CustomShopPagination
     # Vue par défaut : tous les produits
     def get_queryset(self):
         return Product.objects.all()
@@ -68,14 +78,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-class ProductFormatViewSet(viewsets.ModelViewSet):
+class ProductFormatViewSetP(viewsets.ModelViewSet):
     queryset = ProductFormat.objects.all()
     serializer_class = ProductFormatSerializer
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
-class OrderViewSet(viewsets.ModelViewSet):
+    pagination_class = CustomShopPagination
+
+class OrderViewSetP(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]  # Requiert une authentification
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
+    pagination_class = CustomShopPagination
+
     def get_queryset(self):
         # Retourne uniquement les commandes de l'utilisateur connecté
         return Order.objects.filter(user=self.request.user)
@@ -84,10 +96,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Associe automatiquement l'utilisateur connecté lors de la création
         serializer.save(user=self.request.user)
 
-class OrderItemViewSet(viewsets.ModelViewSet):
+class OrderItemViewSetP(viewsets.ModelViewSet):
     serializer_class = OrderItemSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
+    pagination_class = CustomShopPagination
+
     def get_queryset(self):
         # Retourne uniquement les items des commandes de l'utilisateur connecté
         return OrderItem.objects.filter(order__user=self.request.user)

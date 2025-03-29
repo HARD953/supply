@@ -16,11 +16,33 @@ from .serializers import (
     ShopStatsByBrandSerializer
 )
 
+# Classe de pagination personnalisée (optionnel)
+class CustomShopPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'limit'  # Changement clé ici
+    max_page_size = 100
 
-class ShopViewSet(viewsets.ModelViewSet):
+    def get_page_size(self, request):
+        try:
+            limit = int(request.query_params.get(self.page_size_query_param, self.page_size))
+            if limit <= 0:
+                return self.page_size
+            return min(limit, self.max_page_size)
+        except (ValueError, TypeError):
+            return self.page_size
+
+    def get_paginated_response(self, data):
+        return Response({
+            'total': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'data': data
+        })
+
+class ShopViewSetP(viewsets.ModelViewSet):
     serializer_class = ShopSerializer
     permission_classes = [IsAuthenticated]  # Restreint l'accès aux utilisateurs authentifiés
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
+    pagination_class = CustomShopPagination  # Associe la pagination au ViewSet
 
     def get_queryset(self):
         # Si l'utilisateur est authentifié, filtre par owner
@@ -32,10 +54,10 @@ class ShopViewSet(viewsets.ModelViewSet):
         # Associe l'utilisateur connecté comme owner lors de la création
         serializer.save(owner=self.request.user)
 
-class ShopViewSetSupplier(viewsets.ModelViewSet):
+class ShopViewSetSupplierP(viewsets.ModelViewSet):   
     queryset = Shop.objects.all()
     serializer_class = ShopSerializerSupplier
-    pagination_class = None  # Désactive la pagination pour ce ViewSet
+    pagination_class = CustomShopPagination  # Associe la pagination au ViewSet
     # permission_classes = [IsAuthenticated]
     
     # def get_queryset(self):
