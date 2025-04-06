@@ -33,27 +33,47 @@ class CustomShopPagination(PageNumberPagination):
             'data': data
         })
 class CategoryViewSetP(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomShopPagination
+
+    def get_queryset(self):
+        queryset = Category.objects.all()
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)  # Adaptez selon vos champs
+        return queryset
 
 # class ProductViewSet(viewsets.ModelViewSet):
 #     queryset = Product.objects.all()
 #     serializer_class = ProductSerializer
 
 class ProductViewSetP(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]  # Accès réservé aux utilisateurs authentifiés
     pagination_class = CustomShopPagination
-    # Vue par défaut : tous les produits
+
     def get_queryset(self):
-        return Product.objects.all()
+        queryset = Product.objects.all()
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)  # Adaptez selon vos champs
+            )
+        return queryset
 
     # Vue pour les produits des Fabricants
     @action(detail=False, methods=['get'], url_path='fabricant')
     def fabricant_products(self, request):
         queryset = Product.objects.filter(supplier__user_type='Fabricant')
+        search_query = request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -61,6 +81,13 @@ class ProductViewSetP(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='grossiste')
     def grossiste_products(self, request):
         queryset = Product.objects.filter(supplier__user_type='Grossiste')
+        search_query = request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -68,6 +95,13 @@ class ProductViewSetP(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='semi-grossiste')
     def semi_grossiste_products(self, request):
         queryset = Product.objects.filter(supplier__user_type='Semi-Grossiste')
+        search_query = request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -75,13 +109,26 @@ class ProductViewSetP(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='detaillant')
     def detaillant_products(self, request):
         queryset = Product.objects.filter(supplier__user_type='Détaillant')
+        search_query = request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | 
+                Q(description__icontains=search_query)
+            )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
 class ProductFormatViewSetP(viewsets.ModelViewSet):
-    queryset = ProductFormat.objects.all()
     serializer_class = ProductFormatSerializer
     pagination_class = CustomShopPagination
+
+    def get_queryset(self):
+        queryset = ProductFormat.objects.all()
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(format__icontains=search_query)  # Adaptez selon vos champs
+        return queryset
 
 class OrderViewSetP(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
@@ -89,11 +136,17 @@ class OrderViewSetP(viewsets.ModelViewSet):
     pagination_class = CustomShopPagination
 
     def get_queryset(self):
-        # Retourne uniquement les commandes de l'utilisateur connecté
-        return Order.objects.filter(user=self.request.user)
+        queryset = Order.objects.filter(user=self.request.user)
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(id__icontains=search_query) |  # Recherche par ID de commande
+                Q(status__icontains=search_query)  # Ou autre champ pertinent
+            )
+        return queryset
 
     def perform_create(self, serializer):
-        # Associe automatiquement l'utilisateur connecté lors de la création
         serializer.save(user=self.request.user)
 
 class OrderItemViewSetP(viewsets.ModelViewSet):
@@ -102,5 +155,12 @@ class OrderItemViewSetP(viewsets.ModelViewSet):
     pagination_class = CustomShopPagination
 
     def get_queryset(self):
-        # Retourne uniquement les items des commandes de l'utilisateur connecté
-        return OrderItem.objects.filter(order__user=self.request.user)
+        queryset = OrderItem.objects.filter(order__user=self.request.user)
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(product__name__icontains=search_query) |  # Recherche par nom de produit
+                Q(order__id__icontains=search_query)  # Ou ID de commande
+            )
+        return queryset

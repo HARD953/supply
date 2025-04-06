@@ -14,7 +14,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     supplier = models.ForeignKey(User, related_name='products', on_delete=models.PROTECT)
     last_order = models.DateField()
-
+    image = models.ImageField(upload_to='products/')
     def __str__(self):
         return self.name if self.name else "Produit sans nom"
 

@@ -47,9 +47,16 @@ class ShopViewSetP(viewsets.ModelViewSet):
     def get_queryset(self):
         # Si l'utilisateur est authentifié, filtre par owner
         if self.request.user.is_authenticated:
-            return Shop.objects.filter(owner=self.request.user)
+            queryset = Shop.objects.filter(owner=self.request.user)
+            # Récupérer le paramètre search depuis la requête
+            search_query = self.request.query_params.get('search', None)
+            # Appliquer le filtre search si présent
+            if search_query:
+                queryset = queryset.filter(name__icontains=search_query)  # Adaptez selon vos champs
+            return queryset
         # Sinon, retourne un queryset vide ou lève une erreur selon vos besoins
         return Shop.objects.none()
+
     def perform_create(self, serializer):
         # Associe l'utilisateur connecté comme owner lors de la création
         serializer.save(owner=self.request.user)

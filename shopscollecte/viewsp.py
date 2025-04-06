@@ -28,14 +28,26 @@ class CustomShopPagination(PageNumberPagination):
         })
 
 class CategoryViewSetP(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomShopPagination  # Associe la pagination au ViewSet
 
+    def get_queryset(self):
+        queryset = Category.objects.all()
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)  # Adaptez selon vos champs
+        return queryset
+
 class CertificationViewSetP(viewsets.ModelViewSet):
-    queryset = Certification.objects.all()
     serializer_class = CertificationSerializer
     pagination_class = CustomShopPagination  # Associe la pagination au ViewSet
+
+    def get_queryset(self):
+        queryset = Certification.objects.all()
+        search_query = self.request.query_params.get('search', None)
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)  # Adaptez selon vos champs
+        return queryset
 
 class ProductViewSetP(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -45,9 +57,18 @@ class ProductViewSetP(viewsets.ModelViewSet):
     def get_queryset(self):
         # Si l'utilisateur est authentifié, filtre par owner
         if self.request.user.is_authenticated:
-            return Product.objects.filter(owner=self.request.user)
+            queryset = Product.objects.filter(owner=self.request.user)
+            search_query = self.request.query_params.get('search', None)
+            if search_query:
+                from django.db.models import Q
+                queryset = queryset.filter(
+                    Q(name__icontains=search_query) | 
+                    Q(description__icontains=search_query)  # Adaptez selon vos champs
+                )
+            return queryset
         # Sinon, retourne un queryset vide ou lève une erreur selon vos besoins
         return Product.objects.none()
+
     def perform_create(self, serializer):
         # Associe l'utilisateur connecté comme owner lors de la création
         serializer.save(owner=self.request.user)
