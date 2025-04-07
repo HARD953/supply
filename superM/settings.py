@@ -161,7 +161,7 @@ REST_FRAMEWORK = {
 #         'rest_framework.authentication.SessionAuthentication',
 #     ],
 # }
-CORS_ALLOWED_ORIGINS =['http://localhost:3000']
+CORS_ALLOWED_ORIGINS =['http://localhost:3000','https://supply-chain-front.vercel.app/','http://supply-chain-front.vercel.app/']
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
