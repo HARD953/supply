@@ -1,7 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from accounts.models import User  # Assurez-vous d'importer votre modèle User
-from suppliers.models import Supplier  # Assurez-vous d'importer votre modèle Supplier
+# from suppliers.models import Supplier  # Assurez-vous d'importer votre modèle Supplier
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)

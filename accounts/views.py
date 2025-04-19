@@ -52,7 +52,7 @@ class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        serializer = CurrentUserSerializer(request.user.user_name)
+        serializer = CurrentUserSerializer(request.user)
         return Response(serializer.data)
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -68,16 +68,19 @@ class UserViewSet(viewsets.ModelViewSet):
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module4.objects.all()
     serializer_class = ModuleSerializer
+    pagination_class = None
     permission_classes = [IsAuthenticated, IsAdminUser]
 
 class PermissionViewSet(viewsets.ModelViewSet):
     queryset = ModulePermission4.objects.all()
     serializer_class = PermissionSerializer
+    pagination_class = None
     permission_classes = [IsAuthenticated, IsAdminUser]
 
 class UserViewSetCommune(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializerCommune
+    pagination_class = None
     permission_classes = [IsAuthenticated]
 
 class UserViewSetQuartier(viewsets.ModelViewSet):
@@ -88,4 +91,5 @@ class UserViewSetQuartier(viewsets.ModelViewSet):
 class UserViewSetZone(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializerZone
+    pagination_class = None
     permission_classes = [IsAuthenticated]

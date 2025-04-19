@@ -11,6 +11,7 @@ from .serializers import (
     OrderSerializer,
     OrderItemSerializer
 )
+from accounts.permissions import ModulePermission
 class CustomShopPagination(PageNumberPagination):
     page_size = 10  # Nombre d'éléments par page
     page_size_query_param = 'page_size'  # Permet au client de spécifier la taille de la page
@@ -27,6 +28,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = None  # Désactive la pagination pour ce ViewSet
+    permission_classes = [ModulePermission]
 # class ProductViewSet(viewsets.ModelViewSet):
 #     queryset = Product.objects.all()
 #     serializer_class = ProductSerializer

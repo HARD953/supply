@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'superM.wsgi.application'
 # }
 
 # Configuration de la base de données
-DATABASE_URL = config('DATABASE_URL', default='postgresql://chain_supply_user:NtdlfW39GfemHFCIIP96QiGchPXKSVXU@dpg-cvcse8l6l47c73f5viig-a.oregon-postgres.render.com/chain_supply')
+DATABASE_URL = config('DATABASE_URL', default='postgresql://databasesuplly_user:69WbsEWlFH72pXpT1sKG1COPricF5hQg@dpg-d01kvo3uibrs73atr4eg-a.oregon-postgres.render.com/databasesuplly')
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL),  # Utilisez dj-database-url pour parser l'URL
 }
@@ -162,7 +162,7 @@ REST_FRAMEWORK = {
 # }
 CORS_ALLOWED_ORIGINS =['http://localhost:3000','https://supply-chain-front.vercel.app/','http://supply-chain-front.vercel.app/']
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,

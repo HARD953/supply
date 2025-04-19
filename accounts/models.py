@@ -33,6 +33,7 @@ class Module4(models.Model):
     description = models.TextField(blank=True, null=True)
     icon=models.CharField(max_length=50)
     link=models.CharField(max_length=50)
+    color=models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
