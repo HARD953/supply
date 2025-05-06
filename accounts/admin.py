@@ -3,5 +3,8 @@ from .models import *
 # Register your models here.
 
 admin.site.register(User)
-admin.site.register(Module4)
-admin.site.register(ModulePermission4)
+@admin.register(ModulePermission)
+class ModulePermissionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'module', 'can_create', 'can_read', 'can_update', 'can_delete')
+    list_filter = ('module', 'can_create', 'can_read', 'can_update', 'can_delete')
+    search_fields = ('user__username', 'module__name')

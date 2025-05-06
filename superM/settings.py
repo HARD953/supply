@@ -33,6 +33,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'parametres',
+    'accounts',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,14 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    #'rest_framework_simplejwt',
-    'accounts',
     'products',
-    'suppliers',
     'shops',
-    'orders',
     'shopscollecte',
-    'fourcollecte'
+    'statistique',
 ]
 
 MIDDLEWARE = [
@@ -103,8 +101,8 @@ WSGI_APPLICATION = 'superM.wsgi.application'
 #     }
 # }
 
-# Configuration de la base de données
-DATABASE_URL = config('DATABASE_URL', default='postgresql://databasesuplly_user:69WbsEWlFH72pXpT1sKG1COPricF5hQg@dpg-d01kvo3uibrs73atr4eg-a.oregon-postgres.render.com/databasesuplly')
+#Configuration de la base de données
+DATABASE_URL = config('DATABASE_URL', default='postgresql://dabasesuplly_user:ATDeFeald5a8xItCPqmiqY8So3eFO64V@dpg-d0cqhv2dbo4c73fnrngg-a.oregon-postgres.render.com/dabasesuplly')
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL),  # Utilisez dj-database-url pour parser l'URL
 }

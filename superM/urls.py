@@ -8,9 +8,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include('accounts.urls')),
     path('api/', include('products.urls')),
-    path('api/', include('suppliers.urls')),
     path('api/', include('shops.urls')),
-    path('api/', include('orders.urls')),
     path('api/', include('shopscollecte.urls')),
-    path('api/', include('fourcollecte.urls'))
+    path('api/', include('parametres.urls')),
+    path('api/', include('statistique.urls')),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

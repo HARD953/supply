@@ -1,35 +1,50 @@
 from rest_framework import serializers
-from .models import Category, Certification, Product
+from .models import ProductCollecte
+from accounts.models import User
+from shops.models import Shop
+from parametres.models import Category, FrequenceApprovisionnement
 
-class CertificationSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Certification
-        fields = ['id', 'name']
+        model = User
+        fields = ['id', 'email', 'username']
 
-class CategorySerializer(serializers.ModelSerializer):
+class ProductCollecteSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
+    category = serializers.CharField(source='category.name', read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source='category', write_only=True
+    )
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    frequence_appr = serializers.CharField(source='frequence_appr.name', read_only=True, allow_null=True)
+    frequence_appr_id = serializers.PrimaryKeyRelatedField(
+        queryset=FrequenceApprovisionnement.objects.all(), source='frequence_appr', write_only=True, allow_null=True
+    )
+    supplier = serializers.CharField(source='supplier.name', read_only=True)
+    supplier_id = serializers.PrimaryKeyRelatedField(
+        queryset=Shop.objects.all(), source='supplier', write_only=True
+    )
+    supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+
     class Meta:
-        model = Category
-        fields = ['id', 'name']
+        model = ProductCollecte
+        fields = [
+            'id', 'owner', 'name', 'category', 'category_id', 'category_name', 'price', 'image',
+            'stock', 'frequence_appr', 'frequence_appr_id', 'reorder_frequency', 'supplier',
+            'supplier_id', 'supplier_name', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['owner', 'created_at', 'updated_at', 'category_name', 'supplier_name']
 
-class ProductSerializer(serializers.ModelSerializer):
-    # category = CategorySerializer(read_only=True)
-    # category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True)
-    # certifications = CertificationSerializer(many=True, read_only=True)
-    # # certification_ids = serializers.PrimaryKeyRelatedField(queryset=Certification.objects.all(), write_only=True, many=True)
+from rest_framework import serializers
+
+class ProductCollecteStatsSerializer(serializers.Serializer):
+    overview = serializers.DictField()
+    by_owner = serializers.ListField()
+    by_supplier = serializers.ListField()
+    by_category = serializers.ListField()
+    by_frequence_appr = serializers.ListField()
 
     class Meta:
-        model = Product
-        fields = '__all__'
-        read_only_fields = ['owner']
-
-    # def create(self, validated_data):
-    #     certification_ids = validated_data.pop('certification_ids', [])
-    #     product = Product.objects.create(**validated_data)
-    #     product.certifications.set(certification_ids)
-    #     return product
-
-    # def update(self, instance, validated_data):
-    #     certification_ids = validated_data.pop('certification_ids', [])
-    #     instance = super().update(instance, validated_data)
-    #     instance.certifications.set(certification_ids)
-    #     return instance
+        fields = [
+            'overview', 'by_owner', 'by_supplier', 'by_category', 'by_frequence_appr'
+        ]
