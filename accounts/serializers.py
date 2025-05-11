@@ -150,3 +150,5 @@ class StatsSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['overview', 'by_user_type', 'by_commune', 'by_commerce_type']
+
+        

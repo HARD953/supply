@@ -1,5 +1,5 @@
 from django.db.models import Count, Q
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.renderers import JSONRenderer
+from rest_framework import generics
 from .models import User, ModulePermission
 from .serializers import (
     UserSerializer, UserRegistrationSerializer, CurrentUserSerializer,
@@ -56,7 +57,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             self.permission_classes = [IsAuthenticated, IsAdminUser]
-        elif self.action in ['register', 'login']:
+        elif self.action == 'register':
             self.permission_classes = [AllowAny]
         return super().get_permissions()
 
@@ -90,32 +91,6 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response({"message": "Compte créé avec succès."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
-    def login(self, request):
-        token_view = TokenObtainPairView.as_view()
-        response = token_view(request)
-        if response.status_code == status.HTTP_200_OK:
-            user = User.objects.get(email=request.data['email'])
-            response.data.update({
-                'user_id': user.pk,
-                'email': user.email,
-                'username': user.username,
-                'user_type': user.user_type.name if user.user_type else None,
-            })
-        return response
-
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
-    def logout(self, request):
-        try:
-            refresh_token = request.data.get('refresh_token')
-            if not refresh_token:
-                return Response({"error": "Refresh token requis."}, status=status.HTTP_400_BAD_REQUEST)
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({"message": "Déconnexion réussie."}, status=status.HTTP_200_OK)
-        except Exception:
-            return Response({"error": "Token invalide ou expiré."}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def current(self, request):
@@ -235,3 +210,33 @@ class StatsView(viewsets.ViewSet):
                 'by_commerce_type': list(commerce_stats)
             }
             return Response(response_data)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            try:
+                user = User.objects.get(email=request.data['email'])
+                response.data.update({
+                    'user_id': user.pk,
+                    'email': user.email,
+                    'username': user.username,
+                    'user_type': user.user_type.name if user.user_type else None,
+                })
+            except User.DoesNotExist:
+                return Response({"error": "Utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+        return response
+
+class UserLogoutView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.data.get('refresh_token')
+            if not refresh_token:
+                return Response({"error": "Refresh token requis."}, status=status.HTTP_400_BAD_REQUEST)
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Déconnexion réussie."}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"error": "Token invalide ou expiré."}, status=status.HTTP_400_BAD_REQUEST)
