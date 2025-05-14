@@ -9,20 +9,16 @@ from rest_framework import serializers
 class ProductStatsSerializer(serializers.Serializer):
     overview = serializers.DictField()
     by_category = serializers.ListField()
-    by_order_status = serializers.ListField()
-    top_products = serializers.ListField()
     by_supplier = serializers.ListField()
     suppliers_by_commerce = serializers.ListField()
     suppliers_by_commune = serializers.ListField()
     suppliers_by_user_type = serializers.ListField()
-    by_order_user = serializers.ListField()
-    order_users_by_user_type = serializers.ListField()
 
     class Meta:
         fields = [
-            'overview', 'by_category', 'by_order_status', 'top_products',
-            'by_supplier', 'suppliers_by_commerce', 'suppliers_by_commune',
-            'suppliers_by_user_type', 'by_order_user', 'order_users_by_user_type'
+            'overview', 'by_category', 'by_supplier',
+            'suppliers_by_commerce', 'suppliers_by_commune',
+            'suppliers_by_user_type',
         ]
 
 
@@ -34,14 +30,16 @@ class ProductStatsSerializerShop(serializers.Serializer):
     by_order_user = serializers.ListField()
     order_users_by_user_type = serializers.ListField()
     by_supplier = serializers.ListField()
-    by_shop = serializers.ListField()
     top_products = serializers.ListField()
-    shops_by_typecommerce = serializers.ListField()
+    orders_by_product = serializers.ListField()
+    orders_by_category = serializers.ListField()
+    orders_by_commune = serializers.ListField()
 
     class Meta:
         fields = [
             'overview', 'by_order_status', 'by_order_user', 'order_users_by_user_type',
-            'by_supplier', 'by_shop', 'top_products', 'shops_by_typecommerce'
+            'by_supplier', 'top_products', 'orders_by_product', 'orders_by_category',
+            'orders_by_commune'
         ]
 
 class ProductFormatSerializer(serializers.ModelSerializer):

@@ -52,7 +52,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = ['username', 'email', 'user_type', 'commune', 'quartier', 'zone', 'is_active']
     search_fields = ['username', 'email', 'first_name', 'last_name']
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    #renderer_classes = [JSONRenderer]  # Forcer JSON
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -222,12 +222,13 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                     'email': user.email,
                     'username': user.username,
                     'user_type': user.user_type.name if user.user_type else None,
+                    'company_name': user.company_name if user.company_name else None,
                 })
             except User.DoesNotExist:
                 return Response({"error": "Utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
         return response
-
-class UserLogoutView(generics.GenericAPIView):
+from rest_framework.views import APIView
+class UserLogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -240,3 +241,6 @@ class UserLogoutView(generics.GenericAPIView):
             return Response({"message": "Déconnexion réussie."}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"error": "Token invalide ou expiré."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, *args, **kwargs):
+        return Response({"error": "Méthode GET non autorisée. Utilisez POST."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

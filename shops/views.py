@@ -47,7 +47,7 @@ class ReadOnlyOrAuthenticated(IsAuthenticated):
 
 class BaseViewSet(viewsets.ModelViewSet):
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -69,9 +69,14 @@ class ShopViewSet(BaseViewSet):
     module_name = 'Shops'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Shop.objects.all().select_related('owner', 'type', 'typecommerce', 'taille', 'frequence_appr')
-        return Shop.objects.filter(owner=self.request.user).select_related('owner', 'type', 'typecommerce', 'taille', 'frequence_appr')
+        user = self.request.user
+        if user.is_authenticated:
+            if user.user_type.name.lower() == 'super_admin':
+                return Shop.objects.all().select_related('owner', 'type', 'typecommerce', 'taille', 'frequence_appr')
+            return Shop.objects.filter(
+                owner=user
+            ).select_related('owner', 'type', 'typecommerce', 'taille', 'frequence_appr')
+        return Shop.objects.none()
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -90,9 +95,14 @@ class ShopViewSetSupplier(BaseViewSet):
     module_name = 'Shops'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Shop.objects.all().only('id', 'name')
-        return Shop.objects.filter(owner=self.request.user).only('id', 'name')
+        user = self.request.user
+        if user.is_authenticated:
+            if user.user_type.name.lower() == 'super_admin':
+                return Shop.objects.all().only('id', 'name')
+            return Shop.objects.filter(
+                owner=user
+            ).only('id', 'name')
+        return Shop.objects.none()
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -102,13 +112,19 @@ class ShopViewSetSupplier(BaseViewSet):
 class ShopStatsByTypeView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
     module_name = 'Shops'
 
     def list(self, request):
+        user = request.user
+        is_super_admin = user.user_type.name.lower() == 'super_admin'
+        shop_queryset = Shop.objects.all()
+
+        if not is_super_admin:
+            shop_queryset = shop_queryset.filter(owner=user)
+
         shop_stats = (
-            Shop.objects.filter(owner=request.user)
-            .values('typecommerce')
+            shop_queryset.values('typecommerce')
             .annotate(total=Count('id'))
             .order_by('typecommerce')
         )
@@ -125,13 +141,19 @@ class ShopStatsByTypeView(viewsets.ViewSet):
 class ShopStatsByBrandView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
     module_name = 'Shops'
 
     def list(self, request):
+        user = request.user
+        is_super_admin = user.user_type.name.lower() == 'super_admin'
+        shop_queryset = Shop.objects.all()
+
+        if not is_super_admin:
+            shop_queryset = shop_queryset.filter(owner=user)
+
         shop_stats = (
-            Shop.objects.filter(owner=request.user)
-            .values('type')
+            shop_queryset.values('type')
             .annotate(total=Count('id'))
             .order_by('type')
         )
@@ -148,13 +170,19 @@ class ShopStatsByBrandView(viewsets.ViewSet):
 class ShopStatsByDateView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
     module_name = 'Shops'
 
     def list(self, request):
+        user = request.user
+        is_super_admin = user.user_type.name.lower() == 'super_admin'
+        shop_queryset = Shop.objects.all()
+
+        if not is_super_admin:
+            shop_queryset = shop_queryset.filter(owner=user)
+
         shop_stats = (
-            Shop.objects.filter(owner=request.user)
-            .annotate(date=TruncDate('created_at'))
+            shop_queryset.annotate(date=TruncDate('created_at'))
             .values('date')
             .annotate(total=Count('id'))
             .order_by('date')
@@ -172,13 +200,19 @@ class ShopStatsByDateView(viewsets.ViewSet):
 class ShopStatsByMonthView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
     module_name = 'Shops'
 
     def list(self, request):
+        user = request.user
+        is_super_admin = user.user_type.name.lower() == 'super_admin'
+        shop_queryset = Shop.objects.all()
+
+        if not is_super_admin:
+            shop_queryset = shop_queryset.filter(owner=user)
+
         shop_stats = (
-            Shop.objects.filter(owner=request.user)
-            .annotate(month=TruncMonth('created_at'))
+            shop_queryset.annotate(month=TruncMonth('created_at'))
             .values('month')
             .annotate(total=Count('id'))
             .order_by('month')
@@ -196,13 +230,19 @@ class ShopStatsByMonthView(viewsets.ViewSet):
 class ShopStatsByYearView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
     module_name = 'Shops'
 
     def list(self, request):
+        user = request.user
+        is_super_admin = user.user_type.name.lower() == 'super_admin'
+        shop_queryset = Shop.objects.all()
+
+        if not is_super_admin:
+            shop_queryset = shop_queryset.filter(owner=user)
+
         shop_stats = (
-            Shop.objects.filter(owner=request.user)
-            .annotate(year=TruncYear('created_at'))
+            shop_queryset.annotate(year=TruncYear('created_at'))
             .values('year')
             .annotate(total=Count('id'))
             .order_by('year')
@@ -220,21 +260,33 @@ class ShopStatsByYearView(viewsets.ViewSet):
 class ShopStatsView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, IsAdminUser]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
 
     def list(self, request):
-        # Filtre temporel optionnel
+        user = request.user
         days = int(request.query_params.get('days', 30))
         start_date = datetime.now() - timedelta(days=days)
 
+        # Base querysets filtrés pour non-super_admin
+        is_super_admin = user.user_type.name.lower() == 'super_admin'
+        shop_queryset = Shop.objects.all()
+        user_queryset = User.objects.all()
+
+        if not is_super_admin:
+            shop_queryset = shop_queryset.filter(owner=user)
+            # Filtrer les utilisateurs ayant des boutiques ou commandes liées à l'utilisateur
+            user_queryset = user_queryset.filter(
+                Q(shops__owner=user) | Q(orders__items__product_format__product__supplier=user)
+            ).distinct()
+
         # Statistiques générales
-        total_shops = Shop.objects.count()
-        recent_shops = Shop.objects.filter(created_at__gte=start_date).count()
-        total_suppliers = User.objects.filter(shops__isnull=False).distinct().count()
-        total_order_users = User.objects.filter(orders__isnull=False).distinct().count()
+        total_shops = shop_queryset.count()
+        recent_shops = shop_queryset.filter(created_at__gte=start_date).count()
+        total_suppliers = user_queryset.filter(shops__isnull=False).distinct().count()
+        total_order_users = user_queryset.filter(orders__isnull=False).distinct().count()
 
         # Statistiques par boutique
-        shop_stats = Shop.objects.values(
+        shop_stats = shop_queryset.values(
             'name', 'owner__username', 'type__name', 'typecommerce__name', 'taille__name', 'frequence_appr__name'
         ).annotate(
             total_products=Count('owner__products'),
@@ -243,35 +295,35 @@ class ShopStatsView(viewsets.ViewSet):
         ).order_by('-total_products')
 
         # Répartition des boutiques par type de commerce
-        shop_by_typecommerce = Shop.objects.values('typecommerce__name').annotate(
+        shop_by_typecommerce = shop_queryset.values('typecommerce__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
         # Répartition des boutiques par type de boutique
-        shop_by_type = Shop.objects.values('type__name').annotate(
+        shop_by_type = shop_queryset.values('type__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
         # Répartition des boutiques par taille
-        shop_by_taille = Shop.objects.values('taille__name').annotate(
+        shop_by_taille = shop_queryset.values('taille__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
         # Répartition des boutiques par fréquence d'approvisionnement
-        shop_by_frequence_appr = Shop.objects.values('frequence_appr__name').annotate(
+        shop_by_frequence_appr = shop_queryset.values('frequence_appr__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
         # Statistiques par fournisseur
-        supplier_stats = User.objects.filter(shops__isnull=False).values(
+        supplier_stats = user_queryset.filter(shops__isnull=False).values(
             'username', 'email', 'user_type__name'
         ).annotate(
             total_shops=Count('shops'),
@@ -281,7 +333,7 @@ class ShopStatsView(viewsets.ViewSet):
         ).order_by('-total_shops')
 
         # Statistiques par utilisateur des commandes
-        order_user_stats = User.objects.filter(orders__isnull=False).values(
+        order_user_stats = user_queryset.filter(orders__isnull=False).values(
             'username', 'email', 'user_type__name'
         ).annotate(
             total_orders=Count('orders'),
@@ -291,7 +343,7 @@ class ShopStatsView(viewsets.ViewSet):
         ).order_by('-total_orders')[:5]
 
         # Répartition des utilisateurs des commandes par type d'utilisateur
-        order_user_by_user_type = User.objects.filter(orders__isnull=False).values(
+        order_user_by_user_type = user_queryset.filter(orders__isnull=False).values(
             'user_type__name'
         ).annotate(
             total=Count('id'),
@@ -317,7 +369,6 @@ class ShopStatsView(viewsets.ViewSet):
             'order_users_by_user_type': list(order_user_by_user_type)
         }
 
-        # Pagination conditionnelle pour les sections paginables
         paginable_sections = [
             'by_shop', 'shops_by_typecommerce', 'shops_by_type', 'shops_by_taille',
             'shops_by_frequence_appr', 'by_supplier', 'by_order_user', 'order_users_by_user_type'

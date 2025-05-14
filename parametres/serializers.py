@@ -13,17 +13,19 @@ class CommuneSerializer(serializers.ModelSerializer):
 
 class QuartierSerializer(serializers.ModelSerializer):
     commune = serializers.PrimaryKeyRelatedField(queryset=Commune.objects.all())
+    commune_name = serializers.CharField(source='commune.name', read_only=True)
 
     class Meta:
         model = Quartier
-        fields = ['id', 'name', 'commune']
+        fields = ['id', 'name', 'commune', 'commune_name']
 
 class ZoneSerializer(serializers.ModelSerializer):
     commune = serializers.PrimaryKeyRelatedField(queryset=Commune.objects.all(), allow_null=True)
+    commune_name = serializers.CharField(source='commune.name', read_only=True, allow_null=True)
 
     class Meta:
         model = Zone
-        fields = ['id', 'name', 'commune']
+        fields = ['id', 'name', 'commune', 'commune_name']
 
 class UserTypeSerializer(serializers.ModelSerializer):
     class Meta:
