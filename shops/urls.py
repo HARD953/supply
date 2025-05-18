@@ -13,7 +13,7 @@ router.register(r'stats-shops-by-brand', ShopStatsByBrandView, basename='stats-s
 router.register(r'stats-shops-by-date', ShopStatsByDateView, basename='stats-shops-by-date')
 router.register(r'stats-shops-by-month', ShopStatsByMonthView, basename='stats-shops-by-month')
 router.register(r'stats-shops-by-year', ShopStatsByYearView, basename='stats-shops-by-year')
-router.register(r'stat-shops', ShopStatsView, basename='stats-shops')
+router.register(r'shop-stats', ShopStatsView, basename='stats-shops')
 
 urlpatterns = [
     path('', include(router.urls)),

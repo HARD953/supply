@@ -257,35 +257,78 @@ class ShopStatsByYearView(viewsets.ViewSet):
         serializer = ShopStatsByYearSerializer(shop_stats, many=True)
         return Response(serializer.data)
 
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from datetime import datetime, timedelta
+from django.db.models import Count, Sum, Q
+from .serializers import (
+    OverviewSerializer, ShopStatsSerializer, TypeCommerceStatsSerializer,
+    ShopTypeStatsSerializer, TailleStatsSerializer, FrequenceApprStatsSerializer,
+    OwnerStatsSerializer, CommuneStatsSerializer, QuartierStatsSerializer, ZoneStatsSerializer
+)
+from .models import Shop
+
+
 class ShopStatsView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, IsAdminUser]
     pagination_class = CustomShopPagination
     renderer_classes = [JSONRenderer]
 
-    def list(self, request):
+    def get_base_querysets(self, request):
+        """Retourne les querysets filtrés selon le type d'utilisateur."""
         user = request.user
-        days = int(request.query_params.get('days', 30))
-        start_date = datetime.now() - timedelta(days=days)
-
-        # Base querysets filtrés pour non-super_admin
         is_super_admin = user.user_type.name.lower() == 'super_admin'
+
         shop_queryset = Shop.objects.all()
         user_queryset = User.objects.all()
 
         if not is_super_admin:
             shop_queryset = shop_queryset.filter(owner=user)
-            # Filtrer les utilisateurs ayant des boutiques ou commandes liées à l'utilisateur
-            user_queryset = user_queryset.filter(
-                Q(shops__owner=user) | Q(orders__items__product_format__product__supplier=user)
-            ).distinct()
+            user_queryset = user_queryset.filter(shops__owner=user).distinct()
 
-        # Statistiques générales
+        return shop_queryset, user_queryset
+
+    def get_days_and_start_date(self, request):
+        """Retourne le nombre de jours et la date de début."""
+        days = int(request.query_params.get('days', 30))
+        start_date = datetime.now() - timedelta(days=days)
+        return days, start_date
+
+    def paginate_if_needed(self, data, request):
+        """Applique la pagination si demandée."""
+        if request.query_params.get('paginate') == 'true':
+            paginator = self.pagination_class()
+            return paginator.paginate_queryset(data, request), paginator
+        return data, None
+
+    @action(detail=False, methods=['get'], url_path='overview')
+    def overview(self, request):
+        """Statistiques générales des boutiques."""
+        shop_queryset, user_queryset = self.get_base_querysets(request)
+        days, start_date = self.get_days_and_start_date(request)
+
         total_shops = shop_queryset.count()
         recent_shops = shop_queryset.filter(created_at__gte=start_date).count()
         total_suppliers = user_queryset.filter(shops__isnull=False).distinct().count()
-        total_order_users = user_queryset.filter(orders__isnull=False).distinct().count()
 
-        # Statistiques par boutique
+        response_data = {
+            'total_shops': total_shops,
+            'recent_shops': recent_shops,
+            'total_suppliers': total_suppliers,
+            'timeframe_days': days
+        }
+
+        serializer = OverviewSerializer(response_data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-shop')
+    def by_shop(self, request):
+        """Statistiques par boutique."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
         shop_stats = shop_queryset.values(
             'name', 'owner__username', 'type__name', 'typecommerce__name', 'taille__name', 'frequence_appr__name'
         ).annotate(
@@ -294,36 +337,91 @@ class ShopStatsView(viewsets.ViewSet):
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total_products')
 
-        # Répartition des boutiques par type de commerce
+        shop_stats, paginator = self.paginate_if_needed(list(shop_stats), request)
+        serializer = ShopStatsSerializer(shop_stats, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-typecommerce')
+    def shops_by_typecommerce(self, request):
+        """Boutiques par type de commerce."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
         shop_by_typecommerce = shop_queryset.values('typecommerce__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
-        # Répartition des boutiques par type de boutique
+        shop_by_typecommerce, paginator = self.paginate_if_needed(list(shop_by_typecommerce), request)
+        serializer = TypeCommerceStatsSerializer(shop_by_typecommerce, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-type')
+    def shops_by_type(self, request):
+        """Boutiques par type de boutique."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
         shop_by_type = shop_queryset.values('type__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
-        # Répartition des boutiques par taille
+        shop_by_type, paginator = self.paginate_if_needed(list(shop_by_type), request)
+        serializer = ShopTypeStatsSerializer(shop_by_type, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-taille')
+    def shops_by_taille(self, request):
+        """Boutiques par taille."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
         shop_by_taille = shop_queryset.values('taille__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
-        # Répartition des boutiques par fréquence d'approvisionnement
+        shop_by_taille, paginator = self.paginate_if_needed(list(shop_by_taille), request)
+        serializer = TailleStatsSerializer(shop_by_taille, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-frequence-appr')
+    def shops_by_frequence_appr(self, request):
+        """Boutiques par fréquence d'approvisionnement."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
         shop_by_frequence_appr = shop_queryset.values('frequence_appr__name').annotate(
             total=Count('id'),
             total_products=Count('owner__products'),
             total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
-        # Statistiques par fournisseur
-        supplier_stats = user_queryset.filter(shops__isnull=False).values(
+        shop_by_frequence_appr, paginator = self.paginate_if_needed(list(shop_by_frequence_appr), request)
+        serializer = FrequenceApprStatsSerializer(shop_by_frequence_appr, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-owner')
+    def by_owner(self, request):
+        """Statistiques par propriétaire de boutique."""
+        shop_queryset, user_queryset = self.get_base_querysets(request)
+
+        owner_stats = user_queryset.filter(shops__isnull=False).values(
             'username', 'email', 'user_type__name'
         ).annotate(
             total_shops=Count('shops'),
@@ -332,52 +430,63 @@ class ShopStatsView(viewsets.ViewSet):
             total_orders=Count('products__formats__order_items__order', distinct=True)
         ).order_by('-total_shops')
 
-        # Statistiques par utilisateur des commandes
-        order_user_stats = user_queryset.filter(orders__isnull=False).values(
-            'username', 'email', 'user_type__name'
-        ).annotate(
-            total_orders=Count('orders'),
-            recent_orders=Count('orders', filter=Q(orders__created_at__gte=start_date)),
-            total_items=Sum('orders__items__quantity'),
-            total_products=Count('orders__items__product_format__product', distinct=True)
-        ).order_by('-total_orders')[:5]
+        owner_stats, paginator = self.paginate_if_needed(list(owner_stats), request)
+        serializer = OwnerStatsSerializer(owner_stats, many=True)
 
-        # Répartition des utilisateurs des commandes par type d'utilisateur
-        order_user_by_user_type = user_queryset.filter(orders__isnull=False).values(
-            'user_type__name'
-        ).annotate(
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-commune')
+    def by_commune(self, request):
+        """Boutiques par commune."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
+        commune_stats = shop_queryset.values('commune__name').annotate(
             total=Count('id'),
-            total_orders=Count('orders'),
-            total_items=Sum('orders__items__quantity')
+            total_products=Count('owner__products'),
+            total_orders=Count('owner__products__formats__order_items__order', distinct=True)
         ).order_by('-total')
 
-        response_data = {
-            'overview': {
-                'total_shops': total_shops,
-                'recent_shops': recent_shops,
-                'total_suppliers': total_suppliers,
-                'total_order_users': total_order_users,
-                'timeframe_days': days
-            },
-            'by_shop': list(shop_stats),
-            'shops_by_typecommerce': list(shop_by_typecommerce),
-            'shops_by_type': list(shop_by_type),
-            'shops_by_taille': list(shop_by_taille),
-            'shops_by_frequence_appr': list(shop_by_frequence_appr),
-            'by_supplier': list(supplier_stats),
-            'by_order_user': list(order_user_stats),
-            'order_users_by_user_type': list(order_user_by_user_type)
-        }
+        commune_stats, paginator = self.paginate_if_needed(list(commune_stats), request)
+        serializer = CommuneStatsSerializer(commune_stats, many=True)
 
-        paginable_sections = [
-            'by_shop', 'shops_by_typecommerce', 'shops_by_type', 'shops_by_taille',
-            'shops_by_frequence_appr', 'by_supplier', 'by_order_user', 'order_users_by_user_type'
-        ]
-        if request.query_params.get('paginate') == 'true':
-            paginator = self.pagination_class()
-            for section in paginable_sections:
-                response_data[section] = paginator.paginate_queryset(response_data[section], request)
-            return paginator.get_paginated_response(response_data)
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
 
-        serializer = ShopStatsSerializer(response_data)
+    @action(detail=False, methods=['get'], url_path='by-quartier')
+    def by_quartier(self, request):
+        """Boutiques par quartier."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
+        quartier_stats = shop_queryset.values('quartier__name', 'commune__name').annotate(
+            total=Count('id'),
+            total_products=Count('owner__products'),
+            total_orders=Count('owner__products__formats__order_items__order', distinct=True)
+        ).order_by('-total')
+
+        quartier_stats, paginator = self.paginate_if_needed(list(quartier_stats), request)
+        serializer = QuartierStatsSerializer(quartier_stats, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by-zone')
+    def by_zone(self, request):
+        """Boutiques par zone."""
+        shop_queryset, _ = self.get_base_querysets(request)
+
+        zone_stats = shop_queryset.values('zone__name', 'commune__name').annotate(
+            total=Count('id'),
+            total_products=Count('owner__products'),
+            total_orders=Count('owner__products__formats__order_items__order', distinct=True)
+        ).order_by('-total')
+
+        zone_stats, paginator = self.paginate_if_needed(list(zone_stats), request)
+        serializer = ZoneStatsSerializer(zone_stats, many=True)
+
+        if paginator:
+            return paginator.get_paginated_response(serializer.data)
         return Response(serializer.data)

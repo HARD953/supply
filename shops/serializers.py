@@ -63,20 +63,74 @@ class ShopStatsByYearSerializer(serializers.Serializer):
     year = serializers.CharField()  # Format: YYYY
     total = serializers.IntegerField()
 
-class ShopStatsSerializer(serializers.Serializer):
-    overview = serializers.DictField()
-    by_shop = serializers.ListField()
-    shops_by_typecommerce = serializers.ListField()
-    shops_by_type = serializers.ListField()
-    shops_by_taille = serializers.ListField()
-    shops_by_frequence_appr = serializers.ListField()
-    by_supplier = serializers.ListField()
-    by_order_user = serializers.ListField()
-    order_users_by_user_type = serializers.ListField()
+from rest_framework import serializers
 
-    class Meta:
-        fields = [
-            'overview', 'by_shop', 'shops_by_typecommerce', 'shops_by_type',
-            'shops_by_taille', 'shops_by_frequence_appr', 'by_supplier',
-            'by_order_user', 'order_users_by_user_type'
-        ]
+class OverviewSerializer(serializers.Serializer):
+    total_shops = serializers.IntegerField()
+    recent_shops = serializers.IntegerField()
+    total_suppliers = serializers.IntegerField()
+    timeframe_days = serializers.IntegerField()
+
+class ShopStatsSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    owner__username = serializers.CharField()
+    type__name = serializers.CharField(allow_null=True)
+    typecommerce__name = serializers.CharField(allow_null=True)
+    taille__name = serializers.CharField(allow_null=True)
+    frequence_appr__name = serializers.CharField(allow_null=True)
+    total_products = serializers.IntegerField()
+    total_sales = serializers.IntegerField(allow_null=True)
+    total_orders = serializers.IntegerField()
+
+class TypeCommerceStatsSerializer(serializers.Serializer):
+    typecommerce__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+
+class ShopTypeStatsSerializer(serializers.Serializer):
+    type__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+
+class TailleStatsSerializer(serializers.Serializer):
+    taille__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+
+class FrequenceApprStatsSerializer(serializers.Serializer):
+    frequence_appr__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+
+class OwnerStatsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    user_type__name = serializers.CharField(allow_null=True)
+    total_shops = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_sales = serializers.IntegerField(allow_null=True)
+    total_orders = serializers.IntegerField()
+
+class CommuneStatsSerializer(serializers.Serializer):
+    commune__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+
+class QuartierStatsSerializer(serializers.Serializer):
+    quartier__name = serializers.CharField(allow_null=True)
+    commune__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+
+class ZoneStatsSerializer(serializers.Serializer):
+    zone__name = serializers.CharField(allow_null=True)
+    commune__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_orders = serializers.IntegerField()

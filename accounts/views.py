@@ -52,7 +52,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = ['username', 'email', 'user_type', 'commune', 'quartier', 'zone', 'is_active']
     search_fields = ['username', 'email', 'first_name', 'last_name']
     pagination_class = CustomShopPagination
-    #renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]  # Forcer JSON
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -124,15 +124,27 @@ class ByUserTypeView(viewsets.ViewSet):
     renderer_classes = [JSONRenderer]  # Forcer JSON
 
     def list(self, request):
-        user_types_data = User.objects.values('user_type__name').annotate(total=Count('id')).order_by('user_type__name')
+        # Récupérer le paramètre user_type depuis les query_params
+        user_type_filter = request.query_params.get('user_type', None)
+
+        # Construire la requête initiale
+        if user_type_filter:
+            # Filtrer par user_type si le paramètre est fourni
+            user_types_data = User.objects.filter(user_type__name=user_type_filter).values('user_type__name').annotate(total=Count('id')).order_by('user_type__name')
+        else:
+            # Pas de filtre si aucun user_type n'est fourni
+            user_types_data = User.objects.values('user_type__name').annotate(total=Count('id')).order_by('user_type__name')
+
         result = []
 
+        # Gestion de la pagination
         if request.query_params.get('paginate') == 'true':
             paginator = self.pagination_class()
             page = paginator.paginate_queryset(user_types_data, request)
         else:
             page = user_types_data
 
+        # Construire la réponse
         for user_type in page:
             user_type_name = user_type['user_type__name']
             users = User.objects.filter(user_type__name=user_type_name).select_related('user_type', 'commune', 'quartier', 'zone')
@@ -143,6 +155,7 @@ class ByUserTypeView(viewsets.ViewSet):
                 'users': serializer.data
             })
 
+        # Retourner la réponse paginée ou non
         if request.query_params.get('paginate') == 'true':
             return paginator.get_paginated_response(result)
         return Response(result)

@@ -32,3 +32,24 @@ class ProductCollecte(models.Model):
             models.Index(fields=['created_at']),
             models.Index(fields=['category']),
         ]
+
+
+# project-root/
+# ├── app/
+# │   ├── _layout.tsx
+# │   ├── auth.js
+# │   ├── cart.js
+# │   ├── index.js
+# │   ├── loading.tsx
+# │   ├── profile.js
+# │   ├── shop.js
+# │   └── product/
+# │       └── [id].js
+# ├── context/
+# │   ├── AuthContext.js
+# │   └── CartContext.js
+# ├── utils/
+# │   ├── api.js
+# │   └── mockData.js
+# ├── package.json
+# └── node_modules/

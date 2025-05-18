@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from accounts.models import User
-from parametres.models import ShopType, TypeCommerce, TailleShop, FrequenceApprovisionnement
+from parametres.models import ShopType, TypeCommerce, TailleShop, FrequenceApprovisionnement,Commune,Quartier,Zone
 
 class Shop(models.Model):
     owner = models.ForeignKey(User, related_name='shops', on_delete=models.PROTECT)
@@ -13,6 +13,9 @@ class Shop(models.Model):
     brand = models.CharField(max_length=100, blank=True, null=True)
     frequence_appr = models.ForeignKey(FrequenceApprovisionnement, on_delete=models.SET_NULL, null=True, blank=True)
     address = models.TextField()
+    commune = models.ForeignKey(Commune, on_delete=models.SET_NULL, null=True, blank=True, related_name='shop')
+    quartier = models.ForeignKey(Quartier, on_delete=models.SET_NULL, null=True, blank=True, related_name='shop')
+    zone = models.ForeignKey(Zone, on_delete=models.SET_NULL, null=True, blank=True, related_name='shop')
     latitude = models.FloatField()
     longitude = models.FloatField()
     owner_name = models.CharField(max_length=100)

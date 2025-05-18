@@ -6,6 +6,50 @@ from accounts.models import User
 
 from rest_framework import serializers
 
+from rest_framework import serializers
+
+class OverviewSerializer(serializers.Serializer):
+    total_products = serializers.IntegerField()
+    total_formats = serializers.IntegerField()
+    low_stock_formats = serializers.IntegerField()
+    total_suppliers = serializers.IntegerField()
+    stock_out_rate = serializers.FloatField()
+    timeframe_days = serializers.IntegerField()
+
+class CategoryStatsSerializer(serializers.Serializer):
+    category__name = serializers.CharField()
+    total_products = serializers.IntegerField()
+    total_formats = serializers.IntegerField()
+    total_stock = serializers.IntegerField(allow_null=True)
+
+class SupplierStatsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    user_type__name = serializers.CharField()
+    commune__name = serializers.CharField(allow_null=True)
+    quartier__name = serializers.CharField(allow_null=True)
+    zone__name = serializers.CharField(allow_null=True)
+    typecommerce__name = serializers.CharField(allow_null=True)
+    total_products = serializers.IntegerField()
+    total_formats = serializers.IntegerField()
+    total_stock = serializers.IntegerField(allow_null=True)
+    avg_products = serializers.FloatField(allow_null=True)
+
+class CommerceStatsSerializer(serializers.Serializer):
+    typecommerce__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+
+class CommuneStatsSerializer(serializers.Serializer):
+    commune__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+
+class UserTypeStatsSerializer(serializers.Serializer):
+    user_type__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+
 class ProductStatsSerializer(serializers.Serializer):
     overview = serializers.DictField()
     by_category = serializers.ListField()
@@ -197,3 +241,71 @@ class OrderSerializer(serializers.ModelSerializer):
                 product_format.save()
 
         return instance
+    
+from rest_framework import serializers
+
+class OverviewSerializer(serializers.Serializer):
+    total_orders = serializers.IntegerField()
+    recent_orders = serializers.IntegerField()
+    total_items = serializers.IntegerField()
+    total_amount = serializers.FloatField()
+    total_order_users = serializers.IntegerField()
+    total_suppliers = serializers.IntegerField()
+    timeframe_days = serializers.IntegerField()
+
+class OrderStatusStatsSerializer(serializers.Serializer):
+    status__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    recent = serializers.IntegerField()
+    total_items = serializers.IntegerField(allow_null=True)
+    total_amount = serializers.FloatField(allow_null=True)
+
+class OrderUserStatsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    user_type__name = serializers.CharField(allow_null=True)
+    total_orders = serializers.IntegerField()
+    recent_orders = serializers.IntegerField()
+    total_items = serializers.IntegerField(allow_null=True)
+    total_products = serializers.IntegerField()
+    total_amount = serializers.FloatField(allow_null=True)
+
+class UserTypeStatsSerializer(serializers.Serializer):
+    user_type__name = serializers.CharField(allow_null=True)
+    total = serializers.IntegerField()
+    total_orders = serializers.IntegerField()
+    total_items = serializers.IntegerField(allow_null=True)
+    total_products = serializers.IntegerField()
+    total_amount = serializers.FloatField(allow_null=True)
+
+class SupplierStatsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    user_type__name = serializers.CharField(allow_null=True)
+    total_sales = serializers.IntegerField(allow_null=True)
+    total_orders = serializers.IntegerField()
+    total_amount = serializers.FloatField(allow_null=True)
+
+class TopProductsSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    category__name = serializers.CharField(allow_null=True)
+    total_sold = serializers.IntegerField()
+
+class OrdersByProductSerializer(serializers.Serializer):
+    product_format__product__name = serializers.CharField()
+    product_format__product__category__name = serializers.CharField(allow_null=True)
+    total_orders = serializers.IntegerField()
+    total_items = serializers.IntegerField()
+    total_amount = serializers.FloatField(allow_null=True)
+
+class OrdersByCategorySerializer(serializers.Serializer):
+    product_format__product__category__name = serializers.CharField(allow_null=True)
+    total_orders = serializers.IntegerField()
+    total_items = serializers.IntegerField()
+    total_amount = serializers.FloatField(allow_null=True)
+
+class OrdersByCommuneSerializer(serializers.Serializer):
+    user__commune__name = serializers.CharField(allow_null=True)
+    total_orders = serializers.IntegerField()
+    total_items = serializers.IntegerField(allow_null=True)
+    total_amount = serializers.FloatField(allow_null=True)
