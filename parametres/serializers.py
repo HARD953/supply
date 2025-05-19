@@ -35,7 +35,7 @@ class UserTypeSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'app']
+        fields = ['id', 'name', 'description', 'image','app']
 
 class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
