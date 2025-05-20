@@ -16,6 +16,8 @@ from .serializers import (
 )
 from datetime import datetime, timedelta
 
+from parametres.models import UserType
+
 class CustomShopPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'limit'
@@ -118,47 +120,93 @@ class ModulePermissionViewSet(viewsets.ModelViewSet):
             return paginator.get_paginated_response(serializer.data)
         return Response(serializer.data)
 
-class ByUserTypeView(viewsets.ViewSet):
+
+
+class UserByTypeViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, IsAdminUser]
     pagination_class = CustomShopPagination
-    renderer_classes = [JSONRenderer]  # Forcer JSON
+    renderer_classes = [JSONRenderer]
+
+    def get_users_by_type(self, user_type_name, request):
+        """
+        Helper method to fetch users by user type with pagination.
+        """
+        # Filter users by user_type
+        users = User.objects.filter(user_type__name=user_type_name).select_related(
+            'user_type', 'commune', 'quartier', 'zone'
+        )
+
+        # Handle pagination
+        paginate = request.query_params.get('paginate') == 'true'
+        if paginate:
+            paginator = self.pagination_class()
+            page = paginator.paginate_queryset(users, request)
+        else:
+            page = users
+
+        # Serialize the data
+        serializer = UserSerializer(page, many=True, context={'request': request})
+
+        if paginate:
+            return paginator.get_paginated_response(serializer.data)
+        return Response(serializer.data)
 
     def list(self, request):
-        # Récupérer le paramètre user_type depuis les query_params
-        user_type_filter = request.query_params.get('user_type', None)
+        """
+        Default endpoint to return all users grouped by user_type.
+        """
+        # Get all user types
+        user_types = UserType.objects.all()
 
-        # Construire la requête initiale
-        if user_type_filter:
-            # Filtrer par user_type si le paramètre est fourni
-            user_types_data = User.objects.filter(user_type__name=user_type_filter).values('user_type__name').annotate(total=Count('id')).order_by('user_type__name')
-        else:
-            # Pas de filtre si aucun user_type n'est fourni
-            user_types_data = User.objects.values('user_type__name').annotate(total=Count('id')).order_by('user_type__name')
-
+        # Initialize result list
         result = []
 
-        # Gestion de la pagination
-        if request.query_params.get('paginate') == 'true':
-            paginator = self.pagination_class()
-            page = paginator.paginate_queryset(user_types_data, request)
-        else:
-            page = user_types_data
-
-        # Construire la réponse
-        for user_type in page:
-            user_type_name = user_type['user_type__name']
-            users = User.objects.filter(user_type__name=user_type_name).select_related('user_type', 'commune', 'quartier', 'zone')
+        # Iterate through each user type
+        for user_type in user_types:
+            users = User.objects.filter(user_type=user_type).select_related(
+                'user_type', 'commune', 'quartier', 'zone'
+            )
             serializer = UserSerializer(users, many=True, context={'request': request})
-            result.append({
-                'user_type': user_type_name,
-                'total': user_type['total'],
-                'users': serializer.data
-            })
+            result.extend(serializer.data)  # Extend to flatten the list
 
-        # Retourner la réponse paginée ou non
-        if request.query_params.get('paginate') == 'true':
-            return paginator.get_paginated_response(result)
+        # Handle pagination
+        paginate = request.query_params.get('paginate') == 'true'
+        if paginate:
+            paginator = self.pagination_class()
+            # Since we're not using a queryset directly, we need to handle pagination manually
+            page = paginator.paginate_queryset(result, request)
+            return paginator.get_paginated_response(page)
         return Response(result)
+
+    @action(detail=False, methods=['get'], url_path='super_admin')
+    def super_admin(self, request):
+        """Endpoint for super_admin users."""
+        return self.get_users_by_type('super_admin', request)
+
+    @action(detail=False, methods=['get'], url_path='admin')
+    def admin(self, request):
+        """Endpoint for admin users."""
+        return self.get_users_by_type('admin', request)
+
+    @action(detail=False, methods=['get'], url_path='fabricant')
+    def fabricant(self, request):
+        """Endpoint for fabricant users."""
+        return self.get_users_by_type('fabricant', request)
+
+    @action(detail=False, methods=['get'], url_path='grossiste')
+    def grossiste(self, request):
+        """Endpoint for grossiste users."""
+        return self.get_users_by_type('Grossiste', request)
+
+    @action(detail=False, methods=['get'], url_path='semi_grossiste')
+    def semi_grossiste(self, request):
+        """Endpoint for semi_grossiste users."""
+        return self.get_users_by_type('semi_grossiste', request)
+
+    @action(detail=False, methods=['get'], url_path='detaillant')
+    def detaillant(self, request):
+        """Endpoint for detaillant users."""
+        return self.get_users_by_type('detaillant', request)
 
 class StatsView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, IsAdminUser]
