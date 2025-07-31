@@ -33,7 +33,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'category', 'category_name', 'supplier', 'supplier_name', 'supplier_commune','supplier_quartier','supplier_zone','last_order', 'formats','supplier_latitude','supplier_longitude','supplier_type']
+        fields = ['id', 'name', 'category', 'category_name', 'supplier', 'supplier_name', 'supplier_commune','supplier_quartier','supplier_zone','last_order', 'formats','supplier_latitude','supplier_longitude','supplier_type','supplier_phone_number']
         extra_kwargs = {
             'category': {'write_only': True},
             'supplier': {'write_only': True},
