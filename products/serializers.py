@@ -27,6 +27,7 @@ class ProductSerializer(serializers.ModelSerializer):
     supplier_quartier = serializers.CharField(source='supplier.quartier', read_only=True)
     supplier_zone = serializers.CharField(source='supplier.zone', read_only=True)
     supplier_type = serializers.CharField(source='supplier.type', read_only=True)
+    supplier_phone_number = serializers.CharField(source='supplier.phone_number', read_only=True)
     supplier_longitude = serializers.CharField(source='supplier.longitude', read_only=True)
     supplier_latitude = serializers.CharField(source='supplier.latitude', read_only=True)
 
